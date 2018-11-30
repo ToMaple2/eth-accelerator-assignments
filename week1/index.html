@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
@@ -23,7 +22,10 @@
         </div>
 
         <div class="card bg-primary text-white mb-3">
-            <div class="card-body"><h2 id="gasPrice"><i class="fas fa-gas-pump">&nbsp;&nbsp;</i>Gas Price:&nbsp;</h2></div>
+            <div class="card-body">
+                <h2 id="gasPrice"><i class="fas fa-gas-pump">&nbsp;&nbsp;</i>Gas Price: </h2>
+                <button id="refresh" onclick="refreshBlocks()">Refresh</button>
+            </div>
         </div>
 
         <table class="table" id="blocks">
@@ -78,6 +80,17 @@
             cell3.innerHTML = block.timestamp;
             cell4.innerHTML = block.miner;
             cell5.innerHTML = block['transactions'].length;
+        }
+        function refreshBlocks() {
+            //  remove previously inserted data
+            var gasPriceText = document.getElementById('gasPrice');
+            gasPriceText.innerHTML = gasPriceText.innerHTML.substring( 0, gasPriceText.innerHTML.indexOf(':') + 2 );
+            var table = document.getElementById('blocks');
+            for ( var i = 0; i < 10; i++ ) {
+                table.deleteRow(1); //  first <td> row is index 1
+            }
+
+            updateBlocks();
         }
 
     </script>
