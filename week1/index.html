@@ -48,20 +48,31 @@
             updateBlocks();
         }
 
-        async function updateBlocks() {
+        function updateBlocks() {
             let provider = ethers.getDefaultProvider();
 
             provider.getGasPrice().then((gasPrice) => {
                 printGasPrice(gasPrice.toString());
             });
 
-            //  Get the latest block number
-            let blockNumber = await provider.getBlockNumber();
-            //  Retrieve the last 10 blocks
-            for ( var i = 0; i < 10; i++ ) {
-                let block = await provider.getBlock(blockNumber - i);
-                printBlock(block);
-            }
+            //  Get the latest block number, then get the last 10 blocks (by number)
+            provider.getBlockNumber().then((lastBlockNumber) => {
+                var last10Blocks = [];
+                let nbrOfBlocksPopulated = 0;
+                for (var i=lastBlockNumber; i > lastBlockNumber-10; i--) {
+                    provider.getBlock(i).then((block) => {
+                        last10Blocks[lastBlockNumber - block.number] = block;
+                        nbrOfBlocksPopulated++;
+                        //  once all 10 blocks have been populated, send them to printBlock
+                        if (nbrOfBlocksPopulated == 10) {
+                            for (var x in last10Blocks) {
+                                printBlock(last10Blocks[x]);
+                            }
+                        }
+
+                    });
+                }
+            });
         }
 
         function printGasPrice(gasPrice) {
