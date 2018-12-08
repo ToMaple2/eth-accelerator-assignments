@@ -45,13 +45,15 @@ contract ERC20 is IERC20 {
     }
 
     /**
-    * @dev Transfer token for a specified address
+    * @dev Transfer tokens for a specified address
     * @param to The address to transfer to.
     * @param value The amount to be transferred.
     * @return Should always return true if all conditions are met. Otherwise throw exception.
     */
-    function transfer(address to, uint256 value) public returns (bool) {
-        transferFrom( msg.sender, to, value );
+    function transfer(address to, uint256 value) public validDestination( to ) returns (bool) {
+        _balances[msg.sender] = _balances[msg.sender].add( -value );
+        _balances[to] = _balances[to].add( value );
+        emit Transfer(msg.sender, to, value);
         return true;
     }
 
@@ -65,6 +67,7 @@ contract ERC20 is IERC20 {
     function approve(address spender, uint256 value) public returns (bool) {
         require(spender != 0, "Spender address must be specified");
         _allowed[msg.sender][spender] = value;
+        emit Approval(msg.sender, spender, value);
         return true;
     }
 
@@ -74,14 +77,15 @@ contract ERC20 is IERC20 {
     * @param to address The address which you want to transfer to
     * @param value uint256 the amount of tokens to be transferred
     */
-    function transferFrom(address from, address to, uint256 value) public
-        validDestination( to ) returns (bool) {
+    function transferFrom(address from, address to, uint256 value) public validDestination( to ) returns (bool) {
         require(from != 0, "From address must be specified");
         require(_balances[from] >= value, "Owner does not have enough tokens");
         require(_allowed[from][msg.sender] >= value, "Spender does not have enough allowance");
+
         //  reduce 'from' (owner) and spender balances
         _balances[from] = _balances[from].add(-value);
         _allowed[from][msg.sender] = _allowed[from][msg.sender].add(-value);
+
         //  increase the 'to' balance
         _balances[to] = _balances[to].add(value);
     }
