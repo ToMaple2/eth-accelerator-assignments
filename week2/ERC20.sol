@@ -51,6 +51,7 @@ contract ERC20 is IERC20 {
     * @return Should always return true if all conditions are met. Otherwise throw exception.
     */
     function transfer(address to, uint256 value) public validDestination( to ) returns (bool) {
+        require( _balances[msg.sender] >= value, "Sender does not have enough balance" );
         _balances[msg.sender] = _balances[msg.sender].add( -value );
         _balances[to] = _balances[to].add( value );
         emit Transfer(msg.sender, to, value);
@@ -78,7 +79,7 @@ contract ERC20 is IERC20 {
     * @param value uint256 the amount of tokens to be transferred
     */
     function transferFrom(address from, address to, uint256 value) public validDestination( to ) returns (bool) {
-        require(from != 0, "From address must be specified");
+        // require(from != 0, "From address must be specified");
         require(_balances[from] >= value, "Owner does not have enough tokens");
         require(_allowed[from][msg.sender] >= value, "Spender does not have enough allowance");
 
@@ -88,6 +89,8 @@ contract ERC20 is IERC20 {
 
         //  increase the 'to' balance
         _balances[to] = _balances[to].add(value);
+
+        emit Transfer(from, to, value);
     }
 
     // -----------------------------------------
