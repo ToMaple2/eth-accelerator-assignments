@@ -40,7 +40,7 @@ contract Crowdsale {
         rate = _rate;
         wallet = _wallet;
         token = _token;
-        cap = 2500; // hardcoded cap
+        cap = 2500; // hardcoded cap, can we change the constructor???
     }
 
     /**
@@ -64,8 +64,7 @@ contract Crowdsale {
         weiRaised = weiRaised.add(msg.value);
 
         //  - Transfer tokens
-        token.approve(msg.sender, nbrOfTokens);
-        token.transferFrom(address(this), beneficiary, nbrOfTokens);
+        token.transfer(beneficiary, nbrOfTokens);
 
         //  - Forward funds to wallet
         wallet.transfer(msg.value);
