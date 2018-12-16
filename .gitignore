@@ -1,2 +1,4 @@
 .DS_Store
-week2/week2-orig
+week2/week2-orig/
+week3/node-modules/
+week3/truffle-config.js
