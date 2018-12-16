@@ -27,7 +27,7 @@ contract CryptoBallers is ERC721 {
     * @param _tokenId uint256 ID of the token to check
     */
     modifier onlyOwnerOf(uint256 _tokenId) {
-        require(msg.sender == _tokenOwner[_tokenId], "Only the owner of a token can access");
+        require(msg.sender == ownerOf( _tokenId ), "Only the owner of a token can access");
         _;
     }
 
@@ -58,8 +58,7 @@ contract CryptoBallers is ERC721 {
     */
     function claimFreeBaller() public {
         require( claimedFreeBaller[msg.sender] == false, "Free baller already claimed" );
-        unit ballerId = ballers.length;
-        _createBaller( "Baller" + ballerId, 1, 1, 1 );    // offense and defense set to 1
+        _createBaller( "Baller", 1, 1, 1 );    // offense and defense set to 1
     }
 
     /**
@@ -67,9 +66,8 @@ contract CryptoBallers is ERC721 {
     */
     function buyBaller() public payable {
         // TODO add your code, include fee to buy
-        require( msg.value >= ballerFee, "Baller fee is " + ballerFee );
-        uint ballerId = ballers.length;
-        _createBaller( "Baller" + ballerId, 1, 1, 1 ));    // offense and defense set to 1
+        require( msg.value >= ballerFee, "Baller fee not met" );
+        _createBaller( "Baller", 1, 1, 1 );    // offense and defense set to 1
     }
 
     /**
@@ -84,19 +82,19 @@ contract CryptoBallers is ERC721 {
     function playBall(uint _ballerId, uint _opponentId) onlyOwnerOf(_ballerId) public {
         // TODO add your code, review code
         require( _ballerId != _opponentId, "Baller and opponent must be different" );  // is this needed?
-        if ( ballers[_ballerId].offenseSkill > ballers[_opponentId] ) {
+        if ( ballers[_ballerId].offenseSkill > ballers[_opponentId].defenseSkill ) {
             ballers[_ballerId].offenseSkill = ballers[_ballerId].offenseSkill.add( 1 );
             ballers[_ballerId].winCount = ballers[_ballerId].winCount.add(1);
             ballers[_opponentId].lossCount = ballers[_ballerId].lossCount.add( 1 );
-            if ( ballers[_ballerId] >= 5 ) {
+            if ( ballers[_ballerId].level >= 5 ) {
                 // new baller awarded
-                uint ballerId = ballers.length;
-                _createBaller( "Baller" + ballerId, _breedBallers( ballers[_ballerId], ballers[_opponentId] ));
+                (uint level, uint attack, uint defense) = _breedBallers( ballers[_ballerId], ballers[_opponentId] );
+                _createBaller( "Baller", level, attack, defense );
             }
         } else {
             ballers[_ballerId].lossCount = ballers[_ballerId].lossCount.add(1);
             ballers[_opponentId].defenseSkill = ballers[_opponentId].defenseSkill.add(1);
-            ballers[_opponentId].winCount = ballers[_opponentId].windowCount.add(1);
+            ballers[_opponentId].winCount = ballers[_opponentId].winCount.add(1);
         }
     }
 
@@ -119,9 +117,11 @@ contract CryptoBallers is ERC721 {
     function _createBaller(string _name, uint _level, uint _offenseSkill, uint _defenseSkill) internal {
         uint ballerId = ballers.length;
         _mint( msg.sender, ballerId );
-        Baller newBaller = { name: _name, level: _level, offenseSkill: _offenseSkill, defenseSkill: _defenseSkill };
+        Baller memory newBaller = Baller({ name: _name, level: _level,
+        offenseSkill: _offenseSkill, defenseSkill: _defenseSkill,
+        winCount: 0, lossCount: 0 });
         ballers[ballerId] = newBaller;
-        _tokenOwner[ballerId] = msg.sender;
+        transferFrom( address(0), msg.sender, ballerId );
     }
 
     /**
