@@ -56,8 +56,9 @@ contract('CryptoBallers contract Tests', async (accounts) => {
         });
     });
     describe('playBall test', () => {
-        let baller0 = ["New Name", 3, 3, 3, 0, 0 ]; //contract.ballers( 0 );
-        let baller1 = ["Baller", 1, 1, 1, 0, 0 ]; //contract.ballers( 1 );
+        //  need to figure out how to await the retrieval of the ballers, adding async to anoymous arrow function doesn't work
+        let baller0 = ["New Name", 3, 3, 3, 0, 0 ]; //await contract.ballers(0);
+        let baller1 = ["Baller", 1, 1, 1, 0, 0 ]; //await contract.ballers( 1 );
         let betterBaller, betterBallerId, betterGamer, worseBallerId, worseBaller, worseGamer;
         //  determine the better baller and set variables
         if ( baller0[2] > baller1[2] ){

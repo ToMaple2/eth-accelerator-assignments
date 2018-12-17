@@ -81,19 +81,21 @@ contract CryptoBallers is ERC721 {
     */
     function playBall(uint _ballerId, uint _opponentId) onlyOwnerOf(_ballerId) public {
         require( _ballerId != _opponentId, "Baller and opponent must be different" );  // is this needed?
-        if ( ballers[_ballerId].offenseSkill > ballers[_opponentId].defenseSkill ) {
-            ballers[_ballerId].level = ballers[_ballerId].level.add(1);
-            ballers[_ballerId].winCount = ballers[_ballerId].winCount.add(1);
-            ballers[_opponentId].lossCount = ballers[_opponentId].lossCount.add(1);
-            if ( ballers[_ballerId].level >= 5 ) {
+        Baller storage baller1 = ballers[_ballerId];
+        Baller storage baller2 = ballers[_opponentId];
+        if ( baller1.offenseSkill > baller2.defenseSkill ) {
+            baller1.level = baller1.level.add(1);
+            baller1.winCount = baller1.winCount.add(1);
+            baller2.lossCount = baller2.lossCount.add(1);
+            if ( baller1.level >= 5 ) {
                 // new baller awarded
-                (uint level, uint attack, uint defense) = _breedBallers( ballers[_ballerId], ballers[_opponentId] );
+                (uint level, uint attack, uint defense) = _breedBallers( baller1, baller2 );
                 _createBaller( "Baller", level, attack, defense );
             }
         } else {
-            ballers[_ballerId].lossCount = ballers[_ballerId].lossCount.add(1);
-            ballers[_opponentId].level = ballers[_opponentId].level.add(1);
-            ballers[_opponentId].winCount = ballers[_opponentId].winCount.add(1);
+            baller1.lossCount = baller1.lossCount.add(1);
+            baller2.level = baller2.level.add(1);
+            baller2.winCount = baller2.winCount.add(1);
         }
     }
 
