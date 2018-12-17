@@ -58,21 +58,16 @@ contract CryptoBallers is ERC721 {
     */
     function claimFreeBaller() public {
         require( claimedFreeBaller[msg.sender] == false, "Free baller already claimed" );
-        uint ballerId = ballers.length;
         _createBaller( "Baller", 3, now.mod(5), now.mod(5) );    // level to 3, offense and defense set to 1
         claimedFreeBaller[msg.sender] = true;
-        _mint(msg.sender, ballerId);
     }
 
     /**
     * @dev Allows user to buy baller with set attributes
     */
     function buyBaller() public payable {
-        // TODO add your code, include fee to buy
         require( msg.value >= ballerFee, "Baller fee not met" );
-        // uint ballerId = ballers.length;
         _createBaller( "Baller", 1, now.mod(5), now.mod(5) );    // level is 1, offense and defense is random
-        // transferFrom( address(0), msg.sender, ballerId );
     }
 
     /**
@@ -119,8 +114,8 @@ contract CryptoBallers is ERC721 {
    * @param _defenseSkill defensive skill of the Baller
    */
     function _createBaller(string _name, uint _level, uint _offenseSkill, uint _defenseSkill) internal {
-        // uint ballerId = ballers.length;
-        // _mint( owner, ballerId );
+        uint ballerId = ballers.length;
+        _mint( msg.sender, ballerId );
         Baller memory newBaller = Baller({ name: _name, level: _level,
             offenseSkill: _offenseSkill, defenseSkill: _defenseSkill,
             winCount: 0, lossCount: 0 });
