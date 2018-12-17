@@ -58,7 +58,10 @@ contract CryptoBallers is ERC721 {
     */
     function claimFreeBaller() public {
         require( claimedFreeBaller[msg.sender] == false, "Free baller already claimed" );
-        _createBaller( "Baller", 1, 1, 1 );    // offense and defense set to 1
+        uint ballerId = ballers.length;
+        _createBaller( "Baller", 3, now.mod(5), now.mod(5) );    // level to 3, offense and defense set to 1
+        claimedFreeBaller[msg.sender] = true;
+        _mint(msg.sender, ballerId);
     }
 
     /**
@@ -67,7 +70,9 @@ contract CryptoBallers is ERC721 {
     function buyBaller() public payable {
         // TODO add your code, include fee to buy
         require( msg.value >= ballerFee, "Baller fee not met" );
-        _createBaller( "Baller", 1, 1, 1 );    // offense and defense set to 1
+        // uint ballerId = ballers.length;
+        _createBaller( "Baller", 1, now.mod(5), now.mod(5) );    // level is 1, offense and defense is random
+        // transferFrom( address(0), msg.sender, ballerId );
     }
 
     /**
@@ -80,12 +85,11 @@ contract CryptoBallers is ERC721 {
     * @param _opponentId uint ID that the baller needs to be above
     */
     function playBall(uint _ballerId, uint _opponentId) onlyOwnerOf(_ballerId) public {
-        // TODO add your code, review code
         require( _ballerId != _opponentId, "Baller and opponent must be different" );  // is this needed?
         if ( ballers[_ballerId].offenseSkill > ballers[_opponentId].defenseSkill ) {
-            ballers[_ballerId].offenseSkill = ballers[_ballerId].offenseSkill.add( 1 );
+            ballers[_ballerId].level = ballers[_ballerId].level.add( 1 );
             ballers[_ballerId].winCount = ballers[_ballerId].winCount.add(1);
-            ballers[_opponentId].lossCount = ballers[_ballerId].lossCount.add( 1 );
+            ballers[_opponentId].lossCount = ballers[_opponentId].lossCount.add( 1 );
             if ( ballers[_ballerId].level >= 5 ) {
                 // new baller awarded
                 (uint level, uint attack, uint defense) = _breedBallers( ballers[_ballerId], ballers[_opponentId] );
@@ -93,7 +97,7 @@ contract CryptoBallers is ERC721 {
             }
         } else {
             ballers[_ballerId].lossCount = ballers[_ballerId].lossCount.add(1);
-            ballers[_opponentId].defenseSkill = ballers[_opponentId].defenseSkill.add(1);
+            ballers[_opponentId].level = ballers[_opponentId].level.add(1);
             ballers[_opponentId].winCount = ballers[_opponentId].winCount.add(1);
         }
     }
@@ -115,13 +119,12 @@ contract CryptoBallers is ERC721 {
    * @param _defenseSkill defensive skill of the Baller
    */
     function _createBaller(string _name, uint _level, uint _offenseSkill, uint _defenseSkill) internal {
-        uint ballerId = ballers.length;
-        _mint( msg.sender, ballerId );
+        // uint ballerId = ballers.length;
+        // _mint( owner, ballerId );
         Baller memory newBaller = Baller({ name: _name, level: _level,
-        offenseSkill: _offenseSkill, defenseSkill: _defenseSkill,
-        winCount: 0, lossCount: 0 });
-        ballers[ballerId] = newBaller;
-        transferFrom( address(0), msg.sender, ballerId );
+            offenseSkill: _offenseSkill, defenseSkill: _defenseSkill,
+            winCount: 0, lossCount: 0 });
+        ballers.push( newBaller );
     }
 
     /**
@@ -137,4 +140,9 @@ contract CryptoBallers is ERC721 {
         return (level, attack, defense);
 
     }
+
+    function getBallersLength() external view returns (uint) {
+        return ballers.length;
+    }
+
 }
