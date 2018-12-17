@@ -82,9 +82,9 @@ contract CryptoBallers is ERC721 {
     function playBall(uint _ballerId, uint _opponentId) onlyOwnerOf(_ballerId) public {
         require( _ballerId != _opponentId, "Baller and opponent must be different" );  // is this needed?
         if ( ballers[_ballerId].offenseSkill > ballers[_opponentId].defenseSkill ) {
-            ballers[_ballerId].level = ballers[_ballerId].level.add( 1 );
+            ballers[_ballerId].level = ballers[_ballerId].level.add(1);
             ballers[_ballerId].winCount = ballers[_ballerId].winCount.add(1);
-            ballers[_opponentId].lossCount = ballers[_opponentId].lossCount.add( 1 );
+            ballers[_opponentId].lossCount = ballers[_opponentId].lossCount.add(1);
             if ( ballers[_ballerId].level >= 5 ) {
                 // new baller awarded
                 (uint level, uint attack, uint defense) = _breedBallers( ballers[_ballerId], ballers[_opponentId] );

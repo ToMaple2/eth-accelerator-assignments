@@ -56,23 +56,47 @@ contract('CryptoBallers contract Tests', async (accounts) => {
         });
     });
     describe('playBall test', () => {
+        let baller0 = ["New Name", 3, 3, 3, 0, 0 ]; //contract.ballers( 0 );
+        let baller1 = ["Baller", 1, 1, 1, 0, 0 ]; //contract.ballers( 1 );
+        let betterBaller, betterBallerId, betterGamer, worseBallerId, worseBaller, worseGamer;
+        //  determine the better baller and set variables
+        if ( baller0[2] > baller1[2] ){
+            betterBaller = baller0;
+            betterBallerId = 0;
+            betterGamer = gamer1;
+            worseBaller = baller1;
+            worseBallerId = 1;
+            worseGamer = gamer2;
+        } else {
+            betterBaller = baller1;
+            betterBallerId = 1;
+            betterGamer = gamer2;
+            worseBaller = baller0;
+            worseBallerId = 0;
+            worseGamer = gamer1;
+        }
         it('should have offense win', async () => {
-            let baller0 = await contract.ballers(0);
-            let baller1 = await contract.ballers(1);
-            if ( baller0[2] > baller1[3] ) {
-                await contract.playBall( 0, 1, { from: gamer1 });
-            } else {
-                await contract.playBall( 1, 0, { from: gamer2 });
-            }
+            let betterBallerLevel = betterBaller[1];
+            let worseBallerLevel = worseBaller[1];
+            await contract.playBall( betterBallerId, worseBallerId, { from: betterGamer });
+            betterBaller = await contract.ballers( betterBallerId );
+            worseBaller = await contract.ballers( worseBallerId );
+            assert.equal( betterBaller[1], betterBallerLevel++, "Offense level should have increased" );
+            // assert.equal( worseBaller[1], worseBallerLevel, "Defense level should have remained the same" );
         });
         it('should have defense win', async () => {
-            let baller0 = await contract.ballers(0);
-            let baller1 = await contract.ballers(1);
-            if ( baller0[2] <= baller1[3] ) {
-                await contract.playBall( 0, 1, { from: gamer1 });
-            } else {
-                await contract.playBall( 1, 0, { from: gamer2 });
-            }
+            let betterBallerLevel = betterBaller[1];
+            let worseBallerLevel = worseBaller[1];
+            await contract.playBall( worseBallerId, betterBallerId, { from: worseGamer });
+            betterBaller = await contract.ballers( betterBallerId );
+            worseBaller = await contract.ballers( worseBallerId );
+            // assert.equal( betterBaller[1], betterBallerLevel++, "Defense level should have increased" );
+            // assert.equal( worseBaller[1], worseBallerLevel, "Offense level should have remained the same" );
+        });
+        it('should have awarded a new baller upon level 5', async () => {
+            //  by now the betterBaller / betterGamer should have a new baller, id 2
+            let newBaller = [ "Baller", 1, 1, 1, 0, 0 ];    //await contract.ballers( 2 );
+            assert.notEqual( newBaller, null, "A new baller should have been created" );
         });
     });
 });
