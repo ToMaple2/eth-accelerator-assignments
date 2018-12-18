@@ -56,26 +56,29 @@ contract('CryptoBallers contract Tests', async (accounts) => {
         });
     });
     describe('playBall test', () => {
-        //  need to figure out how to await the retrieval of the ballers, adding async to anoymous arrow function doesn't work
-        let baller0 = ["New Name", 3, 3, 3, 0, 0 ]; //await contract.ballers(0);
-        let baller1 = ["Baller", 1, 1, 1, 0, 0 ]; //await contract.ballers( 1 );
+        let baller1, baller2;
         let betterBaller, betterBallerId, betterGamer, worseBallerId, worseBaller, worseGamer;
-        //  determine the better baller and set variables
-        if ( baller0[2] > baller1[2] ){
-            betterBaller = baller0;
-            betterBallerId = 0;
-            betterGamer = gamer1;
-            worseBaller = baller1;
-            worseBallerId = 1;
-            worseGamer = gamer2;
-        } else {
-            betterBaller = baller1;
-            betterBallerId = 1;
-            betterGamer = gamer2;
-            worseBaller = baller0;
-            worseBallerId = 0;
-            worseGamer = gamer1;
-        }
+        //  need to figure out how to await the retrieval of the ballers, adding async to anoymous arrow function doesn't work
+        it('should retrieve baller1 and baller2 and set test variables', async () => {
+            baller1 = await contract.ballers( 0 ); //["New Name", 3, 3, 3, 0, 0 ]; //
+            baller2 = await contract.ballers( 1 ); //["Baller", 1, 1, 1, 0, 0 ]; //
+            //  determine the better baller and set variables
+            if ( baller1[2] > baller2[2] ){
+                betterBaller = baller1;
+                betterBallerId = 0;
+                betterGamer = gamer1;
+                worseBaller = baller2;
+                worseBallerId = 1;
+                worseGamer = gamer2;
+            } else {
+                betterBaller = baller2;
+                betterBallerId = 1;
+                betterGamer = gamer2;
+                worseBaller = baller1;
+                worseBallerId = 0;
+                worseGamer = gamer1;
+            }
+        });
         it('should have offense win', async () => {
             let betterBallerLevel = betterBaller[1];
             let worseBallerLevel = worseBaller[1];
@@ -95,9 +98,10 @@ contract('CryptoBallers contract Tests', async (accounts) => {
             // assert.equal( worseBaller[1], worseBallerLevel, "Offense level should have remained the same" );
         });
         it('should have awarded a new baller upon level 5', async () => {
+            await contract.playBall( betterBallerId, worseBallerId, { from: betterGamer });
             //  by now the betterBaller / betterGamer should have a new baller, id 2
-            let newBaller = [ "Baller", 1, 1, 1, 0, 0 ];    //await contract.ballers( 2 );
-            assert.notEqual( newBaller, null, "A new baller should have been created" );
+            // let newBaller = await contract.ballers( 2 ); //[ "Baller", 1, 1, 1, 0, 0 ];    //
+            // assert.notEqual( newBaller, null, "A new baller should have been created" );
         });
     });
 });

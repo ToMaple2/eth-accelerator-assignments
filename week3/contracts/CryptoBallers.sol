@@ -58,7 +58,7 @@ contract CryptoBallers is ERC721 {
     */
     function claimFreeBaller() public {
         require( claimedFreeBaller[msg.sender] == false, "Free baller already claimed" );
-        _createBaller( "Baller", 3, now.mod(5), now.mod(5) );    // level to 3, offense and defense set to 1
+        _createBaller( "Free Baller", 3, now.mod(100), now.mod(100) );    // level to 3, offense and defense set to random# 0 to 99
         claimedFreeBaller[msg.sender] = true;
     }
 
@@ -67,7 +67,7 @@ contract CryptoBallers is ERC721 {
     */
     function buyBaller() public payable {
         require( msg.value >= ballerFee, "Baller fee not met" );
-        _createBaller( "Baller", 1, now.mod(5), now.mod(5) );    // level is 1, offense and defense is random
+        _createBaller( "Bought Baller", 1, now.mod(100), now.mod(100) );    // level is 1, offense and defense is random
     }
 
     /**
@@ -90,11 +90,11 @@ contract CryptoBallers is ERC721 {
             if ( baller1.level >= 5 ) {
                 // new baller awarded
                 (uint level, uint attack, uint defense) = _breedBallers( baller1, baller2 );
-                _createBaller( "Baller", level, attack, defense );
+                _createBaller( "Awarded Baller", level, attack, defense );
             }
         } else {
             baller1.lossCount = baller1.lossCount.add(1);
-            baller2.level = baller2.level.add(1);
+            // baller2.level = baller2.level.add(1);
             baller2.winCount = baller2.winCount.add(1);
         }
     }
