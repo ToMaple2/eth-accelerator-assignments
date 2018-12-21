@@ -1,4 +1,8 @@
 .DS_Store
 week2/week2-orig/
+week3/build
 week3/node_modules/
 week3/truffle-config.js
+week4/build
+week4/node_modules/
+week4/truffle-config.js
