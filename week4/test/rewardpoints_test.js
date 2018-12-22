@@ -31,19 +31,7 @@ contract('RewardPoints contract Tests', async (accounts) => {
             let userCount = await contract.getUserCount();
             assert.equal(userCount, 1, "users array should be length 1");
         });
-        //  TODO: getting some kind of timing issue which interferes with later tests
-        // it('should have a not approved zero merchant', () => {
-        //     let merchantPromise = contract.getMerchantById.call(0);
-        //     merchantPromise.then( merchantInfo => {
-        //         assert.equal(merchantInfo[2], false, "Zero merchant should be not approved");
-        //     });
-        // });
-        // it('should have a not approved zero user', () => {
-        //     let userPromise = contract.getUserById.call(0);
-        //     userPromise.then( userInfo => {
-        //         assert.equal(userInfo[2], false, "Zero user should not be approved");
-        //     });
-        // });
+        //  TODO - cannot check the zero merchant and user because merchantExist and userExist require() won't let us
     });
     describe('addAdmin() tests', () => {
         it('should allow owner to add admins', async () => {
@@ -59,7 +47,6 @@ contract('RewardPoints contract Tests', async (accounts) => {
     describe('removeAdmin() tests', () => {
         it('should allow owner to remove admins', async () => {
             let result = await contract.removeAdmin(adminAddr, { from: ownerAddr });
-            // console.log( 'result ' + JSON.stringify(result) );
             assert.equal( result.logs[0].event, "RemovedAdmin", "RemovedAdmin event not fired" );
         });
         it('shoud not allow non owner to remove admins', async () => {
@@ -72,7 +59,6 @@ contract('RewardPoints contract Tests', async (accounts) => {
     describe('addMerchant() tests', () => {
         it('should allow admin to add merchants', async () => {
             let result = await contract.addMerchant(merchantAddr, { from: adminAddr });
-            // console.log( 'result ' + JSON.stringify(result) );
             assert.equal( result.logs[0].event, "AddedMerchant", "AddedMerchant event not fired" );
         });
         it('shoud not allow non admin to add merchants', async () => {
@@ -83,7 +69,6 @@ contract('RewardPoints contract Tests', async (accounts) => {
     describe('approveMerchant() tests', () => {
         it('should allow admin to approve merchants', async () => {
             let result = await contract.approveMerchant(1, { from: adminAddr });
-            // console.log( 'result ' + JSON.stringify(result) );
             assert.equal( result.logs[0].event, "ApprovedMerchant", "AddedMerchant event not fired" );
         });
         it('shoud not allow non admin to approve merchants', async () => {
@@ -94,7 +79,6 @@ contract('RewardPoints contract Tests', async (accounts) => {
     describe('banMerchant() tests', () => {
         it('should allow admin to remove merchants', async () => {
             let result = await contract.banMerchant(1, { from: adminAddr });
-            // console.log( 'result ' + JSON.stringify(result) );
             assert.equal( result.logs[0].event, "BannedMerchant", "BannedMerchant event not fired" );
         });
         it('shoud not allow non admin to remove merchants', async () => {
@@ -107,7 +91,6 @@ contract('RewardPoints contract Tests', async (accounts) => {
     describe('addUser() tests', () => {
         it('should allow admin to add users', async () => {
             let result = await contract.addUser(userAddr, { from: adminAddr });
-            // console.log( 'result ' + JSON.stringify(result) );
             assert.equal( result.logs[0].event, "AddedUser", "AddedUser event not fired" );
         });
         it('shoud not allow non admin to add users', async () => {
@@ -118,7 +101,6 @@ contract('RewardPoints contract Tests', async (accounts) => {
     describe('approveUser() tests', () => {
         it('should allow admin to approve users', async () => {
             let result = await contract.approveUser(userAddr, { from: adminAddr });
-            // console.log( 'result ' + JSON.stringify(result) );
             assert.equal( result.logs[0].event, "ApprovedUser", "AddedUser event not fired" );
         });
         it('shoud not allow non admin to approve users', async () => {
@@ -129,7 +111,6 @@ contract('RewardPoints contract Tests', async (accounts) => {
     describe('banUser() tests', () => {
         it('should allow admin to remove users', async () => {
             let result = await contract.banUser(userAddr, { from: adminAddr });
-            // console.log( 'result ' + JSON.stringify(result) );
             assert.equal( result.logs[0].event, "BannedUser", "BannedUser event not fired" );
         });
         it('shoud not allow non admin to remove users', async () => {
@@ -142,7 +123,6 @@ contract('RewardPoints contract Tests', async (accounts) => {
     describe('addOperator() tests', () => {
         it('should allow merchant to add operators', async () => {
             let result = await contract.addOperator(operatorAddr, { from: merchantAddr });
-            // console.log( 'result ' + JSON.stringify(result) );
             assert.equal( result.logs[0].event, "AddedOperator", "AddedOperator event not fired" );
         });
         it('shoud not allow non merchant to add operators', async () => {
@@ -153,7 +133,6 @@ contract('RewardPoints contract Tests', async (accounts) => {
     describe('removeOperator() tests', () => {
         it('should allow merchant to remove operators', async () => {
             let result = await contract.removeOperator(operatorAddr, { from: merchantAddr });
-            // console.log( 'result ' + JSON.stringify(result) );
             assert.equal( result.logs[0].event, "RemovedOperator", "RemovedOperator event not fired" );
         });
         it('shoud not allow non merchant to remove operators', async () => {
@@ -165,12 +144,48 @@ contract('RewardPoints contract Tests', async (accounts) => {
     describe('transferMerchantOwnership() tests', () => {
         it('should allow merchant to transfer merchant ownership', async () => {
             let result = await contract.transferMerchantOwnership(merchant2Addr, { from: merchantAddr });
-            // console.log( 'result ' + JSON.stringify(result) );
             assert.equal( result.logs[0].event, "TransferredMerchantOwnership", "TransferredMerchantOwnership event not fired" );
         });
         it('shoud not allow non merchant to transfer merchant ownership', async () => {
             await contract.addMerchant(merchantAddr, { from: adminAddr });    // merchant 1 must be added back in
             let tx = contract.transferMerchantOwnership(operatorAddr, { from: operatorAddr });
+            await expectThrow(tx);
+        });
+    });
+
+    describe('rewardUser() tests', () => {
+        it('should allow merchant to reward users', async () => {
+            let result = await contract.rewardUser(userAddr, 100, { from: operatorAddr });
+            assert.equal( result.logs[0].event, "RewardedUser", "RewardedUser event not fired" );
+        });
+        it('User should have correct rewarded points', async () => {
+            let userInfo = await contract.getUserById(1);
+            assert.equal( userInfo[3], 100, "Total earned points not equal to 100")
+            let earnedPoints = await contract.getUserEarnedPointsAtMerchant(userAddr, 1, { from: userAddr });
+            assert.equal( earnedPoints, 100, "Merchant earned points not equal to 100" );
+        });
+        it('shoud not allow non merchant to reward users', async () => {
+            let tx = contract.rewardUser(userAddr, { from: userAddr });
+            await expectThrow(tx);
+        });
+    });
+    describe('redeemPoints() tests', () => {
+        it('should allow user to redeem points with a merchant', async () => {
+            let result = await contract.redeemPoints(1, 60, { from: userAddr });
+            assert.equal( result.logs[0].event, "RedeemedPoints", "RedeemedPoints event not fired" );
+        });
+        it('User should have correct redeemed points', async () => {
+            let userInfo = await contract.getUserById(1);
+            assert.equal( userInfo[4], 60, "Total redeemed points not equal to 60")
+            let redeemedPoints = await contract.getUserRedeemedPointsAtMerchant(userAddr, 1, { from: userAddr });
+            assert.equal( redeemedPoints, 60, "Merchant earned points not equal to 60" );
+        });
+        it('shoud not allow non user to redeem points with a merchant', async () => {
+            let tx = contract.redeemPoints(1, 20, { from: operatorAddr });
+            await expectThrow(tx);
+        });
+        it('shoud not allow user to over redeem points with a merchant', async () => {
+            let tx = contract.redeemPoints(1, 60, { from: userAddr });
             await expectThrow(tx);
         });
     });
