@@ -60,6 +60,12 @@ contract('RewardPoints contract Tests', async (accounts) => {
         it('should allow admin to add merchants', async () => {
             let result = await contract.addMerchant(merchantAddr, { from: adminAddr });
             assert.equal( result.logs[0].event, "AddedMerchant", "AddedMerchant event not fired" );
+            let merchantCount = await contract.getMerchantCount();
+            assert.equal( merchantCount, 2, "Add merchant did not add to merchant array" );
+            let merchantInfo = await contract.getMerchantByAddr( merchantAddr );
+            assert.equal( merchantInfo[0], 1, "New merchant id should be 1" );
+            assert.equal( merchantInfo[1], merchantAddr, "New merchant address not correct" );
+            assert.equal( merchantInfo[2], true, "New merchant should be approved" );
         });
         it('shoud not allow non admin to add merchants', async () => {
             let tx = contract.addMerchant(merchantAddr, { from: merchantAddr });
@@ -71,9 +77,11 @@ contract('RewardPoints contract Tests', async (accounts) => {
             let tx = contract.banMerchant(merchantAddr, { from: merchantAddr });
             await expectThrow(tx);
         });
-        it('should allow admin to remove merchants', async () => {
+        it('should allow admin to ban merchants', async () => {
             let result = await contract.banMerchant(1, { from: adminAddr });
             assert.equal( result.logs[0].event, "BannedMerchant", "BannedMerchant event not fired" );
+            let merchantInfo = await contract.getMerchantById( 1 );
+            assert.equal( merchantInfo[2], false, "Banned merchant should not be approved" );
         });
     });
     describe('approveMerchant() tests', () => {
@@ -84,6 +92,8 @@ contract('RewardPoints contract Tests', async (accounts) => {
         it('should allow admin to approve merchants', async () => {
             let result = await contract.approveMerchant(1, { from: adminAddr });
             assert.equal( result.logs[0].event, "ApprovedMerchant", "AddedMerchant event not fired" );
+            let merchantInfo = await contract.getMerchantById( 1 );
+            assert.equal( merchantInfo[2], true, "Approved merchant should be approved again" );
         });
     });
 
@@ -91,6 +101,12 @@ contract('RewardPoints contract Tests', async (accounts) => {
         it('should allow admin to add users', async () => {
             let result = await contract.addUser(userAddr, { from: adminAddr });
             assert.equal( result.logs[0].event, "AddedUser", "AddedUser event not fired" );
+            let userCount = await contract.getUserCount();
+            assert.equal( userCount, 2, "Add user did not add to user array" );
+            let userInfo = await contract.getUserByAddr( userAddr );
+            assert.equal( userInfo[0], 1, "New user id should be 1" );
+            assert.equal( userInfo[1], userAddr, "New user address not correct" );
+            assert.equal( userInfo[2], true, "New user should be approved" );
         });
         it('shoud not allow non admin to add users', async () => {
             let tx = contract.addUser(userAddr, { from: userAddr });
@@ -105,6 +121,8 @@ contract('RewardPoints contract Tests', async (accounts) => {
         it('should allow admin to remove users', async () => {
             let result = await contract.banUser(userAddr, { from: adminAddr });
             assert.equal( result.logs[0].event, "BannedUser", "BannedUser event not fired" );
+            let userInfo = await contract.getUserById( 1 );
+            assert.equal( userInfo[2], false, "Banned user should not be approved" );
         });
     });
     describe('approveUser() tests', () => {
@@ -115,6 +133,8 @@ contract('RewardPoints contract Tests', async (accounts) => {
         it('should allow admin to approve users', async () => {
             let result = await contract.approveUser(userAddr, { from: adminAddr });
             assert.equal( result.logs[0].event, "ApprovedUser", "AddedUser event not fired" );
+            let userInfo = await contract.getUserById( 1 );
+            assert.equal( userInfo[2], true, "Banned user should be approved again" );
         });
     });
 
@@ -122,6 +142,8 @@ contract('RewardPoints contract Tests', async (accounts) => {
         it('should allow merchant to add operators', async () => {
             let result = await contract.addOperator(operatorAddr, { from: merchantAddr });
             assert.equal( result.logs[0].event, "AddedOperator", "AddedOperator event not fired" );
+            let operatorApproved = await contract.isMerchantOperator( operatorAddr, 1 );
+            assert.equal( operatorApproved, true, "New operator should be approved" );
         });
         it('shoud not allow non merchant to add operators', async () => {
             let tx = contract.addOperator(operatorAddr, { from: operatorAddr });
@@ -132,6 +154,8 @@ contract('RewardPoints contract Tests', async (accounts) => {
         it('should allow merchant to remove operators', async () => {
             let result = await contract.removeOperator(operatorAddr, { from: merchantAddr });
             assert.equal( result.logs[0].event, "RemovedOperator", "RemovedOperator event not fired" );
+            let operatorApproved = await contract.isMerchantOperator( operatorAddr, 1 );
+            assert.equal( operatorApproved, false, "New operator should not be approved" );
         });
         it('shoud not allow non merchant to remove operators', async () => {
             await contract.addOperator(operatorAddr, { from: merchantAddr });    // operator must be added back in
@@ -143,6 +167,8 @@ contract('RewardPoints contract Tests', async (accounts) => {
         it('should allow merchant to transfer merchant ownership', async () => {
             let result = await contract.transferMerchantOwnership(merchant2Addr, { from: merchantAddr });
             assert.equal( result.logs[0].event, "TransferredMerchantOwnership", "TransferredMerchantOwnership event not fired" );
+            let merchantInfo = await contract.getMerchantById( 1 );
+            assert.equal( merchantInfo[1], merchant2Addr, "Merchant transfer did not update merchant address" );
         });
         it('shoud not allow non merchant to transfer merchant ownership', async () => {
             await contract.addMerchant(merchantAddr, { from: adminAddr });    // merchant 1 must be added back in
