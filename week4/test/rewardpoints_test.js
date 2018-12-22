@@ -66,25 +66,24 @@ contract('RewardPoints contract Tests', async (accounts) => {
             await expectThrow(tx);
         });
     });
-    describe('approveMerchant() tests', () => {
-        it('should allow admin to approve merchants', async () => {
-            let result = await contract.approveMerchant(1, { from: adminAddr });
-            assert.equal( result.logs[0].event, "ApprovedMerchant", "AddedMerchant event not fired" );
-        });
-        it('shoud not allow non admin to approve merchants', async () => {
-            let tx = contract.approveMerchant(1, { from: merchantAddr });
+    describe('banMerchant() tests', () => {
+        it('shoud not allow non admin to remove merchants', async () => {
+            let tx = contract.banMerchant(merchantAddr, { from: merchantAddr });
             await expectThrow(tx);
         });
-    });
-    describe('banMerchant() tests', () => {
         it('should allow admin to remove merchants', async () => {
             let result = await contract.banMerchant(1, { from: adminAddr });
             assert.equal( result.logs[0].event, "BannedMerchant", "BannedMerchant event not fired" );
         });
-        it('shoud not allow non admin to remove merchants', async () => {
-            await contract.approveMerchant(1, { from: adminAddr });     // merchant must be approved again first
-            let tx = contract.banMerchant(merchantAddr, { from: merchantAddr });
+    });
+    describe('approveMerchant() tests', () => {
+        it('shoud not allow non admin to approve merchants', async () => {
+            let tx = contract.approveMerchant(1, { from: merchantAddr });
             await expectThrow(tx);
+        });
+        it('should allow admin to approve merchants', async () => {
+            let result = await contract.approveMerchant(1, { from: adminAddr });
+            assert.equal( result.logs[0].event, "ApprovedMerchant", "AddedMerchant event not fired" );
         });
     });
 
@@ -98,25 +97,24 @@ contract('RewardPoints contract Tests', async (accounts) => {
             await expectThrow(tx);
         });
     });
-    describe('approveUser() tests', () => {
-        it('should allow admin to approve users', async () => {
-            let result = await contract.approveUser(userAddr, { from: adminAddr });
-            assert.equal( result.logs[0].event, "ApprovedUser", "AddedUser event not fired" );
-        });
-        it('shoud not allow non admin to approve users', async () => {
-            let tx = contract.approveUser(userAddr, { from: userAddr });
+    describe('banUser() tests', () => {
+        it('shoud not allow non admin to remove users', async () => {
+            let tx = contract.banUser(userAddr, { from: userAddr });
             await expectThrow(tx);
         });
-    });
-    describe('banUser() tests', () => {
         it('should allow admin to remove users', async () => {
             let result = await contract.banUser(userAddr, { from: adminAddr });
             assert.equal( result.logs[0].event, "BannedUser", "BannedUser event not fired" );
         });
-        it('shoud not allow non admin to remove users', async () => {
-            await contract.approveUser(userAddr, { from: adminAddr });     // user must be approved again first
-            let tx = contract.banUser(userAddr, { from: userAddr });
+    });
+    describe('approveUser() tests', () => {
+        it('shoud not allow non admin to approve users', async () => {
+            let tx = contract.approveUser(userAddr, { from: userAddr });
             await expectThrow(tx);
+        });
+        it('should allow admin to approve users', async () => {
+            let result = await contract.approveUser(userAddr, { from: adminAddr });
+            assert.equal( result.logs[0].event, "ApprovedUser", "AddedUser event not fired" );
         });
     });
 

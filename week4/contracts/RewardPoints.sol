@@ -139,7 +139,7 @@ contract RewardPoints {
         // 1. Create a new merchant and assign various fields
         // 2. Push new merchant into array
         uint _merchantId = merchants.length;
-        merchants.push( Merchant( _merchantId, _merchant, false ));
+        merchants.push( Merchant( _merchantId, _merchant, true ));
         // 3. Update addrToMerchantId mapping
         addrToMerchantId[_merchant] = _merchantId;
         // 4. Emit event
@@ -171,7 +171,7 @@ contract RewardPoints {
         // 1. Create a new user and assign various fields
         // 2. Push new user into array
         uint _userId = users.length;
-        users.push(User( _userId, _user, false, 0, 0 ));
+        users.push(User( _userId, _user, true, 0, 0 ));
         // 3. Update addrToUserId mapping
         addrToUserId[_user] = _userId;
         // 4. Emit event
