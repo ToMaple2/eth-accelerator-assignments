@@ -228,6 +228,7 @@ contract RewardPoints {
 
     function transferMerchantOwnership(address _newAddr) external onlyMerchantOwner {
         // TODO: your code here
+        require(_newAddr != 0, "New merchant cannot be zero");
         // Hints: Similar to addOperator but update different fields
         // but remember to update the addrToMerchantId twice. Once to
         // remove the old owner and once for the new owner.
