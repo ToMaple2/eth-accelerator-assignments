@@ -202,6 +202,7 @@ contract RewardPoints {
     // =================================
     function addOperator(address _operator) external onlyMerchantOwner {
         // TODO: your code here
+        require(_operator != 0, "Operator cannot be zero");
         // Hints:
         // 1. Get the merchant ID from msg.sender
         uint _merchantId = addrToMerchantId[msg.sender];
